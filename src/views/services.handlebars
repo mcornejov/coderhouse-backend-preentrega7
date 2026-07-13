@@ -1,0 +1,78 @@
+<section class="intro">
+  <h2>Servicios disponibles</h2>
+  <p>
+    Listado de servicios en tiempo real. Al crear, actualizar o eliminar un servicio,
+    esta tabla se actualiza sola gracias a Socket.io, sin recargar la página.
+  </p>
+</section>
+
+{{#if error}}
+  <p class="alerta">{{error}}</p>
+{{/if}}
+
+<section class="tarjeta">
+  <h3>Nuevo servicio</h3>
+  <form id="service-form" class="formulario">
+    <div class="campo">
+      <label for="name">Nombre</label>
+      <input type="text" id="name" name="name" required />
+    </div>
+    <div class="campo">
+      <label for="description">Descripción</label>
+      <input type="text" id="description" name="description" required />
+    </div>
+    <div class="campo">
+      <label for="duration">Duración (min)</label>
+      <input type="number" id="duration" name="duration" min="0" required />
+    </div>
+    <div class="campo">
+      <label for="price">Precio (CLP)</label>
+      <input type="number" id="price" name="price" min="0" required />
+    </div>
+    <div class="campo">
+      <label for="category">Categoría</label>
+      <input type="text" id="category" name="category" required />
+    </div>
+    <div class="campo campo-check">
+      <label for="available">Disponible</label>
+      <input type="checkbox" id="available" name="available" checked />
+    </div>
+    <button type="submit">Crear servicio</button>
+  </form>
+  <p id="form-mensaje" class="mensaje" role="status"></p>
+</section>
+
+<section class="tarjeta">
+  <h3>Servicios (<span id="services-count">{{services.length}}</span>)</h3>
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Duración</th>
+        <th>Precio</th>
+        <th>Categoría</th>
+        <th>Disponible</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="services-body">
+      {{#each services}}
+        <tr data-id="{{this._id}}">
+          <td>{{this.name}}</td>
+          <td>{{this.description}}</td>
+          <td>{{min this.duration}}</td>
+          <td>{{clp this.price}}</td>
+          <td>{{this.category}}</td>
+          <td>{{#if this.available}}Sí{{else}}No{{/if}}</td>
+          <td>
+            <button class="btn-eliminar" data-id="{{this._id}}">Eliminar</button>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <p id="tabla-vacia" class="mensaje" {{#if hayServicios}}hidden{{/if}}>
+    Todavía no hay servicios cargados.
+  </p>
+</section>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{titulo}}</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Café Aurora</h1>
+      <nav>
+        <a href="/views/services">Servicios</a>
+        <a href="/views/availability">Disponibilidad</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      {{{body}}}
+    </main>
+
+    <footer class="site-footer">
+      <small>Sistema de Turnos y Reservas · Café Aurora</small>
+    </footer>
+
+    <!-- Cliente de Socket.io (servido automáticamente por el servidor) -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/socket.js"></script>
+  </body>
+</html>

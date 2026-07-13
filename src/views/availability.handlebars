@@ -1,0 +1,39 @@
+<section class="intro">
+  <h2>Disponibilidad de servicios</h2>
+  <p>
+    Vista de disponibilidad con datos reales de la base de datos. Se actualiza en tiempo
+    real: si cambia la disponibilidad de un servicio, las listas se refrescan solas.
+  </p>
+</section>
+
+{{#if error}}
+  <p class="alerta">{{error}}</p>
+{{/if}}
+
+<section class="tarjeta">
+  <h3>Disponibles (<span id="disponibles-count">{{totalDisponibles}}</span>)</h3>
+  <ul id="disponibles-list" class="lista">
+    {{#each disponibles}}
+      <li data-id="{{this._id}}">
+        <strong>{{this.name}}</strong> · {{this.category}} · {{clp this.price}} · {{min this.duration}}
+      </li>
+    {{/each}}
+  </ul>
+  <p id="disponibles-vacio" class="mensaje" {{#if totalDisponibles}}hidden{{/if}}>
+    No hay servicios disponibles.
+  </p>
+</section>
+
+<section class="tarjeta">
+  <h3>No disponibles (<span id="no-disponibles-count">{{totalNoDisponibles}}</span>)</h3>
+  <ul id="no-disponibles-list" class="lista lista-apagada">
+    {{#each noDisponibles}}
+      <li data-id="{{this._id}}">
+        <strong>{{this.name}}</strong> · {{this.category}} · {{clp this.price}}
+      </li>
+    {{/each}}
+  </ul>
+  <p id="no-disponibles-vacio" class="mensaje" {{#if totalNoDisponibles}}hidden{{/if}}>
+    No hay servicios marcados como no disponibles.
+  </p>
+</section>
