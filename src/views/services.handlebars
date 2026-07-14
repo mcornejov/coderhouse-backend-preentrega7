@@ -66,6 +66,9 @@
           <td>{{this.category}}</td>
           <td>{{#if this.available}}Sí{{else}}No{{/if}}</td>
           <td>
+            <button class="btn-toggle" data-id="{{this._id}}" data-available="{{this.available}}">
+              {{#if this.available}}Marcar no disponible{{else}}Marcar disponible{{/if}}
+            </button>
             <button class="btn-eliminar" data-id="{{this._id}}">Eliminar</button>
           </td>
         </tr>

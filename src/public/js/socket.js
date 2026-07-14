@@ -30,7 +30,12 @@ function renderServicios(services) {
         <td>${clp(s.price)}</td>
         <td>${escapar(s.category)}</td>
         <td>${s.available ? 'Sí' : 'No'}</td>
-        <td><button class="btn-eliminar" data-id="${s._id}">Eliminar</button></td>
+        <td>
+          <button class="btn-toggle" data-id="${s._id}" data-available="${s.available}">
+            ${s.available ? 'Marcar no disponible' : 'Marcar disponible'}
+          </button>
+          <button class="btn-eliminar" data-id="${s._id}">Eliminar</button>
+        </td>
       </tr>`
     )
     .join('');
@@ -129,18 +134,49 @@ if (form) {
   });
 }
 
-// --- Baja de servicios (delegación en el cuerpo de la tabla) ---
+// --- Acciones sobre la tabla: eliminar y cambiar disponibilidad ---
+// Se delega en el cuerpo de la tabla para cubrir también las filas que el socket
+// vuelve a renderizar. Cada acción real dispara el evento 'servicesUpdated', que
+// refresca la vista sin recargar.
 if (servicesBody) {
   servicesBody.addEventListener('click', async (evento) => {
-    const boton = evento.target.closest('.btn-eliminar');
-    if (!boton) return;
+    const eliminar = evento.target.closest('.btn-eliminar');
+    const toggle = evento.target.closest('.btn-toggle');
 
-    const id = boton.dataset.id;
-    try {
-      await fetch(`/api/services/${id}`, { method: 'DELETE' });
-      // La tabla se actualiza sola al recibir 'servicesUpdated'.
-    } catch (error) {
-      if (mensaje) mensaje.textContent = 'Error de conexión al eliminar el servicio.';
+    // Baja de un servicio
+    if (eliminar) {
+      const id = eliminar.dataset.id;
+      try {
+        const respuesta = await fetch(`/api/services/${id}`, { method: 'DELETE' });
+        if (!respuesta.ok && mensaje) {
+          const datos = await respuesta.json().catch(() => ({}));
+          mensaje.textContent = datos.error ?? 'No se pudo eliminar el servicio.';
+        }
+        // Si sale bien, la tabla se actualiza sola al recibir 'servicesUpdated'.
+      } catch (error) {
+        if (mensaje) mensaje.textContent = 'Error de conexión al eliminar el servicio.';
+      }
+      return;
+    }
+
+    // Cambio de disponibilidad (acción de actualización desde la UI)
+    if (toggle) {
+      const id = toggle.dataset.id;
+      const nuevaDisponibilidad = toggle.dataset.available !== 'true';
+      try {
+        const respuesta = await fetch(`/api/services/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ available: nuevaDisponibilidad }),
+        });
+        if (!respuesta.ok && mensaje) {
+          const datos = await respuesta.json().catch(() => ({}));
+          mensaje.textContent = datos.error ?? 'No se pudo cambiar la disponibilidad.';
+        }
+        // La vista (tabla y disponibilidad) se refresca sola vía 'servicesUpdated'.
+      } catch (error) {
+        if (mensaje) mensaje.textContent = 'Error de conexión al cambiar la disponibilidad.';
+      }
     }
   });
 }

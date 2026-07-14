@@ -41,6 +41,11 @@ app.use('/api/bookings', bookingsRouter);
 // Rutas de las vistas server-side
 app.use('/views', viewsRouter);
 
+// La raíz redirige a la vista de servicios (mejor primera impresión que un 404)
+app.get('/', (req, res) => {
+  res.redirect('/views/services');
+});
+
 // Ruta no encontrada
 app.use((req, res) => {
   res.status(404).json({ status: 'error', error: 'Ruta no encontrada' });

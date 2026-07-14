@@ -1,6 +1,12 @@
 import servicesRepository from '../repositories/services.repository.js';
 import { ValidationError } from '../utils/errors.util.js';
 
+// Escapa los caracteres especiales de una expresión regular, para filtrar por
+// categoría de forma exacta e insensible a mayúsculas sin riesgo de inyección.
+function escaparRegex(texto) {
+  return texto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Campos que componen un servicio (lista blanca; el id se genera en persistencia)
 const CAMPOS_REQUERIDOS = [
   'name',
@@ -75,9 +81,22 @@ class ServicesService {
     }
   }
 
-  // Devuelve todos los servicios
-  getServices() {
-    return this.repository.getAll();
+  // Devuelve los servicios, aplicando filtros opcionales por categoría y
+  // disponibilidad. El service arma el filtro y lo delega a la capa de datos
+  // (repository -> DAO), en vez de traer todo y filtrar en memoria.
+  getServices(filtros = {}) {
+    const { category, available } = filtros;
+    const filtro = {};
+
+    if (typeof category === 'string' && category.trim() !== '') {
+      filtro.category = new RegExp(`^${escaparRegex(category.trim())}$`, 'i');
+    }
+
+    if (available === 'true' || available === 'false') {
+      filtro.available = available === 'true';
+    }
+
+    return this.repository.getAll(filtro);
   }
 
   // Devuelve un servicio por id, o null si no existe

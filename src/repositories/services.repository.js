@@ -1,16 +1,16 @@
 import servicesDao from '../dao/services.dao.js';
 
 // El repository ofrece métodos de acceso a datos y desacopla a la capa de
-// servicio de la fuente concreta de persistencia (hoy un archivo JSON vía DAO;
-// mañana podría ser una base de datos, sin tocar el service). No contiene
-// reglas de negocio.
+// servicio de la fuente concreta de persistencia (hoy MongoDB/Mongoose vía DAO;
+// mañana podría ser otra fuente, sin tocar el service). No contiene reglas de
+// negocio.
 class ServicesRepository {
   constructor(dao) {
     this.dao = dao;
   }
 
-  getAll() {
-    return this.dao.getAll();
+  getAll(filtro) {
+    return this.dao.getAll(filtro);
   }
 
   getById(id) {

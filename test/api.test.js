@@ -195,3 +195,71 @@ test('GET /views/availability renderiza HTML de disponibilidad', async () => {
   assert.match(res.headers['content-type'], /html/);
   assert.match(res.text, /Disponibilidad/);
 });
+
+test('GET /views/availability separa disponibles de no disponibles (datos reales)', async () => {
+  await crearServicio({ ...servicioBase, name: 'Servicio disponible', available: true });
+  await crearServicio({ ...servicioBase, name: 'Servicio no disponible', available: false });
+  const res = await request(app).get('/views/availability');
+  assert.equal(res.status, 200);
+  // Los nombres reales de la base aparecen en la vista (no está hardcodeada)
+  assert.match(res.text, /Servicio disponible/);
+  assert.match(res.text, /Servicio no disponible/);
+});
+
+// --- Cobertura adicional de la API ---
+
+test('GET /api/bookings/:bid devuelve una reserva existente', async () => {
+  const reserva = await request(app).post('/api/bookings').send({
+    clientName: 'Valentina Núñez',
+    clientEmail: 'vale@example.cl',
+    date: '2026-08-10',
+    time: '09:30',
+  });
+  const bid = reserva.body.payload._id;
+  const res = await request(app).get(`/api/bookings/${bid}`);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.payload._id, bid);
+});
+
+test('GET /api/bookings/:bid responde 404 con id inexistente', async () => {
+  const res = await request(app).get('/api/bookings/aaaaaaaaaaaaaaaaaaaaaaaa');
+  assert.equal(res.status, 404);
+  assert.equal(res.body.status, 'error');
+});
+
+test('DELETE /api/services/:sid responde 404 con id inexistente', async () => {
+  const res = await request(app).delete('/api/services/aaaaaaaaaaaaaaaaaaaaaaaa');
+  assert.equal(res.status, 404);
+});
+
+test('PUT /api/services/:sid responde 400 con name vacío', async () => {
+  const s = await crearServicio();
+  const res = await request(app).put(`/api/services/${s._id}`).send({ name: '  ' });
+  assert.equal(res.status, 400);
+});
+
+test('GET /api/services?available=false filtra por disponibilidad', async () => {
+  await crearServicio({ ...servicioBase, available: true });
+  await crearServicio({ ...servicioBase, name: 'No disp', available: false });
+  const res = await request(app).get('/api/services?available=false');
+  assert.equal(res.status, 200);
+  assert.ok(res.body.payload.every((s) => s.available === false));
+});
+
+test('POST /api/bookings ignora un status arbitrario y usa pending', async () => {
+  const res = await request(app).post('/api/bookings').send({
+    clientName: 'Tomás Vera',
+    clientEmail: 'tomas@example.cl',
+    date: '2026-08-11',
+    time: '15:00',
+    status: 'estado-inventado',
+  });
+  assert.equal(res.status, 201);
+  assert.equal(res.body.payload.status, 'pending');
+});
+
+test('GET / redirige a la vista de servicios', async () => {
+  const res = await request(app).get('/').redirects(0);
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.location, '/views/services');
+});

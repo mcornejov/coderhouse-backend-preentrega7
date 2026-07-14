@@ -87,9 +87,12 @@ Con el servidor corriendo:
 ### Cómo verificar el tiempo real
 
 1. Abre `/views/services` en **dos pestañas** del navegador.
-2. En una, crea un servicio con el formulario (o elimínalo con el botón).
+2. En una, crea un servicio con el formulario, cambia su disponibilidad con el botón
+   **"Marcar disponible/no disponible"** o elimínalo con el botón **Eliminar**.
 3. La tabla se actualiza sola en **ambas** pestañas, sin recargar. Lo mismo ocurre con la
-   vista `/views/availability` si el servicio cambia su disponibilidad.
+   vista `/views/availability` cuando un servicio cambia su disponibilidad.
+
+> La raíz `/` redirige a `/views/services`.
 
 ## Endpoints de la API REST
 

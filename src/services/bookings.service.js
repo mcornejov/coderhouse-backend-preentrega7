@@ -5,6 +5,9 @@ import { ValidationError, NotFoundError } from '../utils/errors.util.js';
 // Campos obligatorios de cada reserva (services se maneja aparte)
 const CAMPOS_REQUERIDOS = ['clientName', 'clientEmail', 'date', 'time'];
 
+// Estados válidos de una reserva
+const ESTADOS_PERMITIDOS = ['pending', 'confirmed', 'cancelled'];
+
 // El service concentra las reglas de negocio de las reservas. No conoce req/res
 // ni la forma en que se persisten los datos.
 class BookingsService {
@@ -47,12 +50,18 @@ class BookingsService {
   async createBooking(bookingData) {
     this.#validarReserva(bookingData);
 
+    // status es un campo controlado: solo se acepta un valor de la lista blanca;
+    // cualquier otra cosa (o su ausencia) cae al valor por defecto 'pending'.
+    const status = ESTADOS_PERMITIDOS.includes(bookingData.status)
+      ? bookingData.status
+      : 'pending';
+
     const nueva = {
       clientName: bookingData.clientName,
       clientEmail: bookingData.clientEmail,
       date: bookingData.date,
       time: bookingData.time,
-      status: bookingData.status ?? 'pending',
+      status,
       services: [],
     };
 
