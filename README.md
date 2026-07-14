@@ -111,6 +111,24 @@ Con el servidor corriendo:
 | `GET`  | `/api/bookings/:bid`                | Devuelve una reserva por id.                           | `200` / `404` |
 | `POST` | `/api/bookings/:bid/services/:sid`  | Asocia un servicio existente a la reserva.             | `200` / `404` |
 
+## Pruebas automatizadas
+
+El proyecto incluye una suite de tests con el runner nativo de Node (`node:test`), que cubre:
+
+- **API REST** (con **supertest**): casos de éxito y error de cada endpoint (200/201/400/404).
+- **Vistas**: `GET /views/services` y `GET /views/availability` renderizan HTML con datos
+  reales de la base.
+- **Tiempo real** (con **socket.io-client**): al crear un servicio, el servidor emite
+  `servicesUpdated` y un cliente conectado lo recibe.
+
+```bash
+pnpm test
+```
+
+Los tests corren contra una base **MongoDB en memoria** (`mongodb-memory-server`), por lo que
+son aislados y reproducibles y **no tocan** la base real de Atlas. La primera ejecución
+descarga el binario de MongoDB para los tests (queda cacheado).
+
 ## Estructura del proyecto
 
 ```
